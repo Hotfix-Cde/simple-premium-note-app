@@ -1,14 +1,18 @@
-name: Android CI
+name: Android CI & Release
 
 on:
   push:
     branches:
       - master
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout repository
@@ -45,8 +49,30 @@ jobs:
     - name: Build Android release APK
       run: cd android && ./gradlew assembleRelease
 
+    - name: Rename APK for release
+      run: mv android/app/build/outputs/apk/release/app-release.apk PremiumNotes-v1.0.apk
+
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: android-apk
-        path: android/app/build/outputs/apk/release/app-release.apk
+        path: PremiumNotes-v1.0.apk
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: PremiumNotes-v1.0.apk
+        tag_name: v1.0.${{ github.run_number }}
+        name: Release v1.0.${{ github.run_number }}
+        body: |
+          Automated release for Premium Notes.
+          
+          ### Changes
+          - Initial Android build
+          - Premium Dark UI
+          - Local Storage & Backup features
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
