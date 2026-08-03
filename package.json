@@ -1,0 +1,26 @@
+{
+  "name": "simple-premium-note-app",
+  "version": "1.0.0",
+  "description": "![Screenshot Placeholder](https://via.placeholder.com/800x450?text=Simple+Premium+Note+App+Screenshot)",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx cap sync android && cd android && ./gradlew assembleRelease"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sahprem304-tech/simple-premium-note-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sahprem304-tech/simple-premium-note-app/issues"
+  },
+  "homepage": "https://github.com/sahprem304-tech/simple-premium-note-app#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  }
+}

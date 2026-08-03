@@ -1,0 +1,52 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Make webDir for Capacitor
+      run: |
+        mkdir -p www
+        cp index.html style.css script.js www/
+
+    - name: Update Capacitor config for webDir
+      run: sed -i 's/"webDir": "."/"webDir": "www"/' capacitor.config.json
+
+    - name: Add Android platform (if not already added)
+      run: npx cap add android || true
+
+    - name: Sync Capacitor project
+      run: npx cap sync android
+
+    - name: Build Android release APK
+      run: cd android && ./gradlew assembleRelease
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apk
+        path: android/app/build/outputs/apk/release/app-release.apk

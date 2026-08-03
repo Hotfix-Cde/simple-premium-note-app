@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Notes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-black">
+    <div id="app">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="icon">📝</span>
+                <h1 class="title">Premium Notes</h1>
+            </div>
+            <nav>
+                <button id="nav-notes" class="nav-item active" onclick="app.showSection('notes')">
+                    <span class="icon">🏠</span> Notes
+                </button>
+                <button id="nav-settings" class="nav-item" onclick="app.showSection('settings')">
+                    <span class="icon">⚙️</span> Settings
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>v1.0.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Notes Section -->
+            <section id="section-notes" class="app-section">
+                <header class="section-header">
+                    <div class="search-bar">
+                        <input type="text" id="search-input" placeholder="Search notes (title, content, tags)..." oninput="app.handleSearch()">
+                    </div>
+                    <button id="add-note-btn" class="btn btn-primary" onclick="app.openNoteEditor()">+ New Note</button>
+                </header>
+
+                <div id="notes-grid" class="notes-grid">
+                    <!-- Notes will be injected here -->
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="section-settings" class="app-section hidden">
+                <header class="section-header">
+                    <h2>Settings</h2>
+                </header>
+
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3>Appearance</h3>
+                        <div class="setting-item">
+                            <label>Theme</label>
+                            <select id="theme-select" onchange="app.updateTheme()">
+                                <option value="theme-dark">Dark</option>
+                                <option value="theme-light">Light</option>
+                                <option value="theme-black" selected>Black (Premium)</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label>Font Size</label>
+                            <input type="range" id="font-size-slider" min="12" max="24" value="16" oninput="app.updateFontSize()">
+                            <span id="font-size-value">16px</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Editor</h3>
+                        <div class="setting-item">
+                            <label>Show Word Count</label>
+                            <input type="checkbox" id="word-count-toggle" checked onchange="app.saveSettings()">
+                        </div>
+                        <div class="setting-item">
+                            <label>Auto-save</label>
+                            <input type="checkbox" id="autosave-toggle" checked onchange="app.saveSettings()">
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>Data Management</h3>
+                        <div class="data-actions">
+                            <button class="btn" onclick="app.exportNotes()">Export Backup (.json)</button>
+                            <label for="import-input" class="btn">Import Backup</label>
+                            <input type="file" id="import-input" accept=".json" style="display:none" onchange="app.importNotes(event)">
+                            <button class="btn btn-danger" onclick="app.clearData()">Clear All Data</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>About</h3>
+                        <p><strong>Premium Notes v1.0.0</strong></p>
+                        <p>A simple yet powerful note-taking app designed for speed and privacy.</p>
+                        <div class="guide">
+                            <h4>How to backup your notes:</h4>
+                            <ol>
+                                <li>Click "Export Backup" to download your notes.</li>
+                                <li>Save the <code>notes-backup.json</code> file in a safe place.</li>
+                                <li>To restore, use the "Import Backup" button and select your file.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Note Editor Modal -->
+        <div id="note-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="text" id="note-title" placeholder="Note Title" class="editor-title">
+                    <div class="modal-actions">
+                        <button id="pin-btn" class="btn-icon" onclick="app.togglePin()" title="Pin Note">📌</button>
+                        <button class="btn-icon" onclick="app.closeNoteEditor()">✕</button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <textarea id="note-content" placeholder="Start writing..." class="editor-content" oninput="app.handleAutoSave()"></textarea>
+                    <div class="editor-footer">
+                        <input type="text" id="note-tags" placeholder="Tags (comma separated)" class="editor-tags">
+                        <div class="editor-info">
+                            <span id="word-count">Words: 0</span>
+                            <span id="last-modified"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" id="delete-note-btn" onclick="app.deleteCurrentNote()">Delete</button>
+                    <button class="btn btn-primary" onclick="app.saveCurrentNote()">Save Note</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
