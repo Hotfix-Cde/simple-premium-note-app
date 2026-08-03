@@ -24,6 +24,18 @@ A sleek, fast, and interactive note-taking application built with a focus on use
 5.  **Search**: Use the search bar at the top to filter notes by title, content, or tags.
 6.  **Settings**: Navigate to the "Settings" tab to customize appearance, manage data, and configure editor preferences.
 
+## Android App (APK)
+
+This project is equipped with **Capacitor**, allowing it to run as a native Android application.
+
+### How to get the APK:
+1. Go to the **Actions** tab in this GitHub repository.
+2. Select the latest **Android CI** workflow run.
+3. Under the **Artifacts** section, you will find the `android-apk` download link.
+4. Extract the zip file to get the `app-release.apk` and install it on your Android device.
+
+*Note: Since this is a debug/release build without a private signing key, you may need to allow "Install from Unknown Sources" on your device.*
+
 ## How to Backup and Restore Your Notes
 
 Your notes are saved locally in your browser's `localStorage`. To ensure your data is safe, especially if you clear browser data or switch devices, use the built-in backup features:
