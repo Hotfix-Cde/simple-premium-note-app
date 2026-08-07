@@ -2,8 +2,9 @@ name: Android CI & Release
 
 on:
   push:
-    branches:
-      - master
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
   workflow_dispatch:
 
 jobs:
@@ -13,65 +14,61 @@ jobs:
       contents: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '21'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Prepare web assets
-      run: |
-        mkdir -p www
-        cp index.html style.css script.js www/
-        # Ensure logo exists if it's referenced later
-        touch www/logo.png 
+      - name: Prepare web assets
+        run: |
+          mkdir -p www
+          cp index.html style.css script.js www/
+          cp logo.png www/logo.png
 
-    - name: Initialize Capacitor Android
-      run: |
-        npx cap add android || true
-        npx cap sync android
+      - name: Sync Capacitor Android
+        run: npx cap sync android
 
-    - name: Build Android release APK
-      run: |
-        cd android
-        chmod +x gradlew
-        ./gradlew assembleRelease
+      - name: Build Android release APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
 
-    - name: Rename APK for release
-      run: cp android/app/build/outputs/apk/release/app-release-unsigned.apk PremiumNotes-v1.0.apk || cp android/app/build/outputs/apk/release/app-release.apk PremiumNotes-v1.0.apk
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-notes-release-apk
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: android-apk
-        path: PremiumNotes-v1.0.apk
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          tag_name: v2.1.${{ github.run_number }}
+          name: Premium Notes v2.1.${{ github.run_number }}
+          body: |
+            Premium Notes UI/UX refresh.
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: PremiumNotes-v1.0.apk
-        tag_name: v1.0.${{ github.run_number }}
-        name: Release v1.0.${{ github.run_number }}
-        body: |
-          Automated release for Premium Notes.
-          
-          ### Features
-          - Premium Dark UI
-          - Offline-first Local Storage
-          - Backup & Restore (.json)
-          - Android APK included
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - Modern responsive mobile layout
+            - Better note cards and editor
+            - Improved search and writing statistics
+            - Safer note rendering
+            - More reliable autosave
+            - Fixed Android web-asset packaging
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

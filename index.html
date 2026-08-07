@@ -2,59 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#000000">
-  <meta name="description" content="A fast, private, premium-feeling notes app that stores your notes locally.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0f">
+  <meta name="description" content="A fast, private, beautiful offline notes app.">
   <title>Premium Notes</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-black">
   <div id="app">
     <aside class="sidebar" aria-label="Main navigation">
-      <div class="logo"><img src="logo.png" alt="Premium Notes" class="logo-image"><h1 class="title">Premium Notes</h1></div>
+      <div class="logo"><img src="logo.png" alt="" class="logo-image"><div><h1 class="title">Premium Notes</h1><p class="logo-subtitle">Private workspace</p></div></div>
       <nav>
-        <button id="nav-notes" class="nav-item active" type="button" onclick="app.showSection('notes')" aria-current="page"><span class="icon" aria-hidden="true">🏠</span> Notes</button>
-        <button id="nav-settings" class="nav-item" type="button" onclick="app.showSection('settings')"><span class="icon" aria-hidden="true">⚙️</span> Settings</button>
+        <button id="nav-notes" class="nav-item active" type="button" onclick="app.showSection('notes')" aria-current="page"><span class="icon">⌂</span><span>Notes</span></button>
+        <button id="nav-settings" class="nav-item" type="button" onclick="app.showSection('settings')"><span class="icon">⚙</span><span>Settings</span></button>
       </nav>
-      <div class="sidebar-footer"><p>v2.0.0 • Local &amp; private</p></div>
+      <div class="sidebar-footer"><span class="status-dot"></span> Offline &amp; private</div>
     </aside>
+
     <main class="content">
       <section id="section-notes" class="app-section" aria-labelledby="notes-heading">
         <header class="section-header">
           <div class="header-title"><div><p class="eyebrow">Your workspace</p><h2 id="notes-heading">Notes</h2></div><span id="note-count" class="note-count">0 notes</span></div>
           <div class="header-actions">
             <label class="search-bar" aria-label="Search notes"><span aria-hidden="true">⌕</span><input type="search" id="search-input" placeholder="Search notes..." autocomplete="off"></label>
-            <button id="add-note-btn" class="btn btn-primary" type="button" onclick="app.openNoteEditor()">+ New Note</button>
+            <button id="add-note-btn" class="btn btn-primary" type="button" onclick="app.openNoteEditor()"><span>＋</span> New Note</button>
           </div>
         </header>
         <div id="notes-grid" class="notes-grid" aria-live="polite"></div>
       </section>
+
       <section id="section-settings" class="app-section hidden" aria-labelledby="settings-heading">
-        <header class="section-header simple-header"><div><p class="eyebrow">Customize your workspace</p><h2 id="settings-heading">Settings</h2></div></header>
+        <header class="section-header simple-header"><div><p class="eyebrow">Make it yours</p><h2 id="settings-heading">Settings</h2></div></header>
         <div class="settings-container">
-          <div class="settings-group">
-            <h3>Appearance</h3>
-            <div class="setting-item"><div><label for="theme-select">Theme</label><p>Choose the look you like best.</p></div><select id="theme-select"><option value="theme-dark">Dark</option><option value="theme-light">Light</option><option value="theme-black">Black (Premium)</option></select></div>
-            <div class="setting-item"><div><label for="font-size-slider">Font Size</label><p>Adjust reading and editing size.</p></div><div class="range-control"><input type="range" id="font-size-slider" min="12" max="24" value="16"><span id="font-size-value">16px</span></div></div>
+          <div class="settings-group"><h3>Appearance</h3>
+            <div class="setting-item"><div><label for="theme-select">Theme</label><p>Pick a comfortable look.</p></div><select id="theme-select"><option value="theme-dark">Dark</option><option value="theme-light">Light</option><option value="theme-black">Black</option></select></div>
+            <div class="setting-item"><div><label for="font-size-slider">Editor text</label><p>Adjust reading and writing size.</p></div><div class="range-control"><input type="range" id="font-size-slider" min="12" max="24" value="16"><span id="font-size-value">16px</span></div></div>
           </div>
-          <div class="settings-group">
-            <h3>Editor</h3>
-            <div class="setting-item"><div><label for="word-count-toggle">Show Word Count</label><p>Display words and characters while editing.</p></div><input type="checkbox" id="word-count-toggle" checked></div>
-            <div class="setting-item"><div><label for="autosave-toggle">Auto-save</label><p>Save existing notes while you type.</p></div><input type="checkbox" id="autosave-toggle" checked></div>
+          <div class="settings-group"><h3>Editor</h3>
+            <div class="setting-item"><div><label for="word-count-toggle">Writing stats</label><p>Show words and characters.</p></div><input type="checkbox" id="word-count-toggle" checked></div>
+            <div class="setting-item"><div><label for="autosave-toggle">Auto-save</label><p>Keep edits safe while you type.</p></div><input type="checkbox" id="autosave-toggle" checked></div>
           </div>
-          <div class="settings-group">
-            <h3>Data Management</h3><p class="settings-description">Your notes stay in this browser. Export a backup before clearing or moving devices.</p>
-            <div class="data-actions"><button class="btn" type="button" onclick="app.exportNotes()">Export Backup</button><label for="import-input" class="btn">Import Backup</label><input type="file" id="import-input" accept="application/json,.json" hidden><button class="btn btn-danger" type="button" onclick="app.clearData()">Clear All Data</button></div>
-          </div>
-          <div class="settings-group about-card"><h3>About</h3><p><strong>Premium Notes v2.0.0</strong></p><p>A clean, fast note-taking app designed for speed and privacy. No account required.</p><div class="guide"><h4>Quick shortcuts</h4><ul><li><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> focuses search.</li><li><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>N</kbd> creates a new note.</li><li><kbd>Esc</kbd> closes the editor.</li></ul></div></div>
+          <div class="settings-group"><h3>Your data</h3><p class="settings-description">Notes stay on this device. Export a backup before changing devices.</p><div class="data-actions"><button class="btn" type="button" onclick="app.exportNotes()">Export backup</button><label for="import-input" class="btn">Import backup</label><input type="file" id="import-input" accept="application/json,.json" hidden><button class="btn btn-danger" type="button" onclick="app.clearData()">Clear all</button></div></div>
+          <div class="settings-group about-card"><h3>Premium Notes</h3><p>Fast, focused, offline-first note taking with no account required.</p><div class="guide"><strong>Keyboard shortcuts</strong><ul><li><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> Search</li><li><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>N</kbd> New note</li><li><kbd>Esc</kbd> Close editor</li></ul></div></div>
         </div>
       </section>
     </main>
+
     <div id="note-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="note-title">
       <div class="modal-content">
-        <div class="modal-header"><input type="text" id="note-title" placeholder="Note title" class="editor-title" maxlength="120" autocomplete="off"><div class="modal-actions"><button id="pin-btn" class="btn-icon" type="button" onclick="app.togglePin()" title="Pin note" aria-label="Pin note">📍</button><button class="btn-icon" type="button" onclick="app.closeNoteEditor()" title="Close editor" aria-label="Close editor">✕</button></div></div>
-        <div class="modal-body"><textarea id="note-content" placeholder="Start writing..." class="editor-content" maxlength="50000"></textarea><div class="editor-footer"><input type="text" id="note-tags" placeholder="Tags, separated by commas" class="editor-tags" maxlength="300" autocomplete="off"><div class="editor-info"><span id="word-count">Words: 0 • Characters: 0</span><span id="save-status">Ready</span><span id="last-modified"></span></div></div></div>
-        <div class="modal-footer"><button class="btn btn-danger" type="button" id="delete-note-btn" onclick="app.deleteCurrentNote()">Delete</button><div class="modal-footer-right"><button class="btn" type="button" onclick="app.closeNoteEditor()">Cancel</button><button class="btn btn-primary" type="button" onclick="app.saveCurrentNote()">Save Note</button></div></div>
+        <div class="modal-header"><input type="text" id="note-title" placeholder="Untitled note" class="editor-title" maxlength="120" autocomplete="off"><div class="modal-actions"><button id="pin-btn" class="btn-icon" type="button" onclick="app.togglePin()" title="Pin note" aria-label="Pin note">📍</button><button class="btn-icon" type="button" onclick="app.closeNoteEditor()" title="Close editor" aria-label="Close editor">✕</button></div></div>
+        <div class="modal-body"><textarea id="note-content" placeholder="Start writing something great..." class="editor-content" maxlength="50000"></textarea><div class="editor-footer"><input type="text" id="note-tags" placeholder="Add tags, separated by commas" class="editor-tags" maxlength="300" autocomplete="off"><div class="editor-info"><span id="word-count">Words: 0 • Characters: 0</span><span id="save-status">Ready</span><span id="last-modified"></span></div></div></div>
+        <div class="modal-footer"><button class="btn btn-danger" type="button" id="delete-note-btn" onclick="app.deleteCurrentNote()">Delete</button><div class="modal-footer-right"><button class="btn" type="button" onclick="app.closeNoteEditor()">Cancel</button><button class="btn btn-primary" type="button" onclick="app.saveCurrentNote()">Save note</button></div></div>
       </div>
     </div>
     <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
