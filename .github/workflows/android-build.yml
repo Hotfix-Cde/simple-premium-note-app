@@ -37,6 +37,7 @@ jobs:
         run: |
           mkdir -p www
           cp index.html style.css script.js www/
+          cp logo.svg www/logo.svg
           cp logo.png www/logo.png
 
       - name: Sync Capacitor Android
@@ -52,6 +53,7 @@ jobs:
             || { echo "Keystore invalid or credentials wrong"; exit 1; }
           echo "KEYSTORE_FILE=$HOME/.android/release.jks" >> "$GITHUB_ENV"
         env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -69,11 +71,8 @@ jobs:
 
       - name: Verify signed APK signature
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        id: verify
         run: |
           APK="android/app/build/outputs/apk/release/app-release-unsigned.apk"
-          echo "apk=$APK" >> "$GITHUB_OUTPUT"
-          # jarsigner is part of the JDK installed by setup-java
           jarsigner -verify -verbose -certs "$APK"
           echo "Signature verification passed."
 
@@ -81,7 +80,7 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: premium-notes-signed-apk
+          name: premium-notes-apk
           path: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Publish signed APK to GitHub Releases
@@ -89,17 +88,16 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: android/app/build/outputs/apk/release/app-release-unsigned.apk
-          tag_name: v2.1.${{ github.run_number }}
-          name: Premium Notes v2.1.${{ github.run_number }}
+          tag_name: v3.0.${{ github.run_number }}
+          name: NovaVault v3.0.${{ github.run_number }}
           body: |
-            Signed release build with automatic GitHub Actions signing.
+            NovaVault premium release build.
 
-            - Modern responsive mobile layout
-            - Better note cards and editor
-            - Improved search and writing statistics
-            - Safer note rendering
-            - More reliable autosave
-            - Fixed Android web-asset packaging
-            - APK signed with project release key (keystore stored only in GitHub secrets)
+            - Glassy dashboard with live stats
+            - Search, sort, tags, categories, and filters
+            - Templates, markdown preview, and color labels
+            - Pin, favorite, archive, duplicate, and autosave
+            - Import/export backups for offline use
+            - Android APK built and attached automatically
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

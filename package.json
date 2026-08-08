@@ -1,7 +1,7 @@
 {
   "name": "simple-premium-note-app",
-  "version": "1.0.0",
-  "description": "![Screenshot Placeholder](https://via.placeholder.com/800x450?text=Simple+Premium+Note+App+Screenshot)",
+  "version": "2.0.0",
+  "description": "NovaVault, a premium offline-first note vault with dashboards, templates, markdown preview, and polished Android UI.",
   "main": "script.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,15 +9,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sahprem304-tech/simple-premium-note-app.git"
+    "url": "git+https://github.com/Hotfix-Cde/simple-premium-note-app.git"
   },
-  "keywords": [],
+  "keywords": [
+    "capacitor",
+    "javascript",
+    "mobile-app",
+    "notes",
+    "offline-first",
+    "productivity"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sahprem304-tech/simple-premium-note-app/issues"
+    "url": "https://github.com/Hotfix-Cde/simple-premium-note-app/issues"
   },
-  "homepage": "https://github.com/sahprem304-tech/simple-premium-note-app#readme",
+  "homepage": "https://github.com/Hotfix-Cde/simple-premium-note-app#readme",
   "dependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",

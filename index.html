@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b0b0f">
-  <meta name="description" content="A fast, private, beautiful offline notes app.">
+  <meta name="description" content="NovaVault, a premium offline-first notes app with dashboard insights, templates, and polished mobile UI.">
   <title>Premium Notes</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-black">
   <div id="app">
     <aside class="sidebar" aria-label="Main navigation">
-      <div class="logo"><img src="logo.png" alt="" class="logo-image"><div><h1 class="title">Premium Notes</h1><p class="logo-subtitle">Private workspace</p></div></div>
+      <div class="logo"><img src="logo.svg" alt="" class="logo-image"><div><h1 class="title">Premium Notes</h1><p class="logo-subtitle">NovaVault edition</p></div></div>
       <nav>
         <button id="nav-notes" class="nav-item active" type="button" onclick="app.showSection('notes')" aria-current="page"><span class="icon">⌂</span><span>Notes</span></button>
         <button id="nav-settings" class="nav-item" type="button" onclick="app.showSection('settings')"><span class="icon">⚙</span><span>Settings</span></button>
@@ -24,7 +24,7 @@
         <header class="section-header">
           <div class="header-title"><div><p class="eyebrow">Your workspace</p><h2 id="notes-heading">Notes</h2></div><span id="note-count" class="note-count">0 notes</span></div>
           <div class="header-actions">
-            <label class="search-bar" aria-label="Search notes"><span aria-hidden="true">⌕</span><input type="search" id="search-input" placeholder="Search notes..." autocomplete="off"></label>
+            <label class="search-bar" aria-label="Search notes"><span aria-hidden="true">⌕</span><input type="search" id="search-input" placeholder="Search the vault..." autocomplete="off"></label>
             <button id="add-note-btn" class="btn btn-primary" type="button" onclick="app.openNoteEditor()"><span>＋</span> New Note</button>
           </div>
         </header>
