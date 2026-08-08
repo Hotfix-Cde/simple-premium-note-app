@@ -7,3 +7,7 @@ android/captures/
 android/app/google-services.json
 android/app/src/main/assets/public/
 
+# Release signing - NEVER commit these
+*.jks
+*.keystore
+keystore.properties

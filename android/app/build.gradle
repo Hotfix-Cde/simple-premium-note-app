@@ -16,10 +16,30 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            // Signing credentials come from GitHub Actions secrets via environment
+            // variables in CI, or from keystore.properties for local builds.
+            // NEVER commit the real keystore or passwords.
+            def ksPath = System.getenv("KEYSTORE_FILE") ?: ""
+            def propsFile = rootProject.file('keystore.properties')
+            def props = new Properties()
+            if (propsFile.exists()) {
+                props.load(new FileInputStream(propsFile))
+            }
+            if (ksPath) {
+                storeFile file(ksPath)
+            }
+            storePassword System.getenv("KEYSTORE_PASSWORD") ?: props['storePassword'] ?: ""
+            keyAlias System.getenv("KEY_ALIAS") ?: props['keyAlias'] ?: ""
+            keyPassword System.getenv("KEY_PASSWORD") ?: props['keyPassword'] ?: ""
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }

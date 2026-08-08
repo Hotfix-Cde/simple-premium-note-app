@@ -42,19 +42,49 @@ jobs:
       - name: Sync Capacitor Android
         run: npx cap sync android
 
-      - name: Build Android release APK
+      - name: Decode release keystore
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p ~/.android
+          echo "$KEYSTORE_BASE64" | base64 -d > ~/.android/release.jks
+          chmod 600 ~/.android/release.jks
+          keytool -list -keystore ~/.android/release.jks -storepass "$KEYSTORE_PASSWORD" > /dev/null 2>&1 \
+            || { echo "Keystore invalid or credentials wrong"; exit 1; }
+          echo "KEYSTORE_FILE=$HOME/.android/release.jks" >> "$GITHUB_ENV"
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+
+      - name: Build signed release APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
+        env:
+          KEYSTORE_FILE: ${{ github.event_name == 'pull_request' && '' || env.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
 
-      - name: Upload APK artifact
+      - name: Verify signed APK signature
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        id: verify
+        run: |
+          APK="android/app/build/outputs/apk/release/app-release-unsigned.apk"
+          echo "apk=$APK" >> "$GITHUB_OUTPUT"
+          # jarsigner is part of the JDK installed by setup-java
+          jarsigner -verify -verbose -certs "$APK"
+          echo "Signature verification passed."
+
+      - name: Upload signed APK artifact
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: premium-notes-release-apk
+          name: premium-notes-signed-apk
           path: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
-      - name: Create GitHub Release
+      - name: Publish signed APK to GitHub Releases
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
@@ -62,7 +92,7 @@ jobs:
           tag_name: v2.1.${{ github.run_number }}
           name: Premium Notes v2.1.${{ github.run_number }}
           body: |
-            Premium Notes UI/UX refresh.
+            Signed release build with automatic GitHub Actions signing.
 
             - Modern responsive mobile layout
             - Better note cards and editor
@@ -70,5 +100,6 @@ jobs:
             - Safer note rendering
             - More reliable autosave
             - Fixed Android web-asset packaging
+            - APK signed with project release key (keystore stored only in GitHub secrets)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
