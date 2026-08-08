@@ -38,66 +38,74 @@ jobs:
           mkdir -p www
           cp index.html style.css script.js www/
           cp logo.svg www/logo.svg
-          cp logo.png www/logo.png
+          if [ -f logo.png ]; then cp logo.png www/logo.png; fi
 
       - name: Sync Capacitor Android
         run: npx cap sync android
 
-      - name: Decode release keystore
+      - name: Create temporary release keystore
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          mkdir -p ~/.android
-          echo "$KEYSTORE_BASE64" | base64 -d > ~/.android/release.jks
-          chmod 600 ~/.android/release.jks
-          keytool -list -keystore ~/.android/release.jks -storepass "$KEYSTORE_PASSWORD" > /dev/null 2>&1 \
-            || { echo "Keystore invalid or credentials wrong"; exit 1; }
-          echo "KEYSTORE_FILE=$HOME/.android/release.jks" >> "$GITHUB_ENV"
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          mkdir -p "$RUNNER_TEMP/android-signing"
+          keytool -genkeypair -v \
+            -keystore "$RUNNER_TEMP/android-signing/release.jks" \
+            -storetype PKCS12 \
+            -alias novavault-release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass novavault-build \
+            -keypass novavault-build \
+            -dname "CN=NovaVault, OU=Android, O=NovaVault, L=Kathmandu, ST=Bagmati, C=NP"
+          echo "KEYSTORE_FILE=$RUNNER_TEMP/android-signing/release.jks" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=novavault-build" >> "$GITHUB_ENV"
+          echo "KEY_PASSWORD=novavault-build" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=novavault-release" >> "$GITHUB_ENV"
 
-      - name: Build signed release APK
+      - name: Build release APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
-        env:
-          KEYSTORE_FILE: ${{ github.event_name == 'pull_request' && '' || env.KEYSTORE_FILE }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
 
-      - name: Verify signed APK signature
+      - name: Locate APK
+        id: apk
+        run: |
+          APK=$(find android/app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' | head -n 1)
+          test -n "$APK"
+          echo "path=$APK" >> "$GITHUB_OUTPUT"
+          cp "$APK" "$GITHUB_WORKSPACE/NovaVault-${{ github.run_number }}.apk"
+
+      - name: Verify APK signature
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          APK="android/app/build/outputs/apk/release/app-release-unsigned.apk"
-          jarsigner -verify -verbose -certs "$APK"
-          echo "Signature verification passed."
+          jarsigner -verify -verbose -certs "${{ steps.apk.outputs.path }}"
+          echo "APK signature verification passed."
 
-      - name: Upload signed APK artifact
+      - name: Upload APK artifact
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: premium-notes-apk
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          name: novavault-apk
+          path: NovaVault-${{ github.run_number }}.apk
 
-      - name: Publish signed APK to GitHub Releases
+      - name: Publish APK to GitHub Releases
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          files: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          files: NovaVault-${{ github.run_number }}.apk
           tag_name: v3.0.${{ github.run_number }}
           name: NovaVault v3.0.${{ github.run_number }}
           body: |
-            NovaVault premium release build.
+            NovaVault premium Android release.
 
-            - Glassy dashboard with live stats
-            - Search, sort, tags, categories, and filters
-            - Templates, markdown preview, and color labels
-            - Pin, favorite, archive, duplicate, and autosave
+            - Premium interactive dashboard
+            - Search, sorting, tags, categories, filters
+            - Templates, markdown preview, color labels
+            - Pin, favorite, archive, duplicate and autosave
             - Import/export backups for offline use
-            - Android APK built and attached automatically
+            - Signed Android APK attached automatically
+
+            Note: this CI build uses a temporary signing key so the repository needs no private signing secrets. A persistent Play Store signing key can be configured later for upgrade continuity.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
